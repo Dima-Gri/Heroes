@@ -13,6 +13,7 @@ start_message = f'На данный момент вы находитесь в л
                 f'На каждый ход у вас <b>60 секунд</b>(если не успеваете - проигрываете). Отсчет заканчивается, когда вы совершаете какое-то действие и сразу же начинается заново\n' \
                 f'Поехали...'
 
+
 class FSMLoop(StatesGroup):
     Nickname = State()
     move_to_location = State()
@@ -26,6 +27,18 @@ class FSMLoop(StatesGroup):
     potion = State()
     fight = State()
     my_sleep = State()
+
+
+@dp.message_handler(Text("Статистика игр"))
+async def get_stat(message: types.Message):
+    ls = get_person_by_user_id(message.from_user.id)
+    if not ls:
+        await message.answer('Пока что вы не играли в нашу игру...', reply_markup=kb_start)
+    else:
+        for per in ls:
+            await message.answer(
+                f'<b>Nickname:</b> {per["Nickname"]}, <b>Money:</b> {per["Money"]}, <b>Опыт:</b> {per["XP"]}, <b>Максимальный уровень:</b> {per["Level"]}\n',
+                parse_mode='HTML', reply_markup=kb_start)
 
 
 @dp.message_handler(Text("Начать новую игру"))
@@ -107,11 +120,12 @@ async def buy_in_market(message: types.Message, state: FSMContext):
         ls[index] = (d["ItemID"], d["Cost"])
         index += 1
     if not flag:
-        await message.answer('Вы не можете ничего купить, так как у вас недостаточно деньжат', parse_mode='HTML', reply_markup=kb_in_location)
+        await message.answer('Вы не можете ничего купить, так как у вас недостаточно деньжат', parse_mode='HTML',
+                             reply_markup=kb_in_location)
         await FSMLoop.move_to_location.set()
     else:
         await message.answer('Напишите соответствующий индекс товара, который хотите приобрести', parse_mode='HTML',
-                         reply_markup=kb_cancel)
+                             reply_markup=kb_cancel)
         async with state.proxy() as data:
             data['available_items'] = ls
         await FSMLoop.next()
@@ -302,7 +316,7 @@ async def in_location(message: types.Message, state: FSMContext):
     mes = ''
     for _, x, y, type, name in select_all_locations():
         dist = ((int(current_location['XCoord']) - int(x)) ** 2 + (
-                    int(current_location['YCoord']) - int(y)) ** 2) ** 0.5
+                int(current_location['YCoord']) - int(y)) ** 2) ** 0.5
         if dist <= 10 and dist != 0.0:
             mes += f'<b>Локация:</b> {name}, <b>Тип локации:</b> {type}, <b>Добираться:</b> {int(dist)} сек.\n'
 
@@ -369,11 +383,12 @@ async def in_location(message: types.Message, state: FSMContext):
             data['attack_type'] = 'Физическая'
 
         await message.answer(f'Тут вам предстоит битва с мобом <b>{mob["Name"]}</b>\n'
-                             f'Бой началася, ход за вами(по умолчанию вид атаки физический)', parse_mode='HTML', reply_markup=kb_in_dungeon)
+                             f'Бой началася, ход за вами(по умолчанию вид атаки физический)', parse_mode='HTML',
+                             reply_markup=kb_in_dungeon)
 
     else:
         await message.answer(f'Вы прибыли в локацию: <b>{location[2]}</b>({location[1]})', reply_markup=kb_in_location,
-                         parse_mode='HTML')
+                             parse_mode='HTML')
 
         async with state.proxy() as data:
             data['in_dungeon'] = False
@@ -382,7 +397,9 @@ async def in_location(message: types.Message, state: FSMContext):
         data['current_location'] = location[0]
     await FSMLoop.move_to_location.set()
 
+
 mobs_fields = ['MobID', 'HP', 'XP', 'ReqLevel', 'AttackType', 'Attack', 'Armour', 'Magic_Armour', 'Name']
+
 
 @dp.message_handler(Text("Информация о мобе"), state=FSMLoop.move_to_location)
 async def person_info(message: types.Message, state: FSMContext):
@@ -395,6 +412,7 @@ async def person_info(message: types.Message, state: FSMContext):
                          f'<b>Физическая броня:</b> {info["Armour"]}\n'
                          f'<b>Магическая броня:</b> {info["Magic_Armour"]}\n',
                          reply_markup=kb_in_dungeon, parse_mode='HTML')
+
 
 @dp.message_handler(Text("Выбрать тип атаки"), state=FSMLoop.move_to_location)
 async def person_info(message: types.Message, state: FSMContext):
@@ -446,6 +464,7 @@ async def person_info(message: types.Message, state: FSMContext):
             data['potions'] = ls
         await FSMLoop.potion.set()
 
+
 @dp.message_handler(Text("Отмена"), state=FSMLoop.potion)
 async def cancel(message: types.Message, state: FSMContext):
     await message.answer('Вы вышли из инвентаря для изучения зелий...', reply_markup=kb_in_dungeon)
@@ -483,7 +502,9 @@ async def person_info(message: types.Message, state: FSMContext):
     mob_hp = int(mob['HP']) - person_attack
     if mob_hp <= 0:
         update_win(person_, mob['XP'])
-        await message.answer(f'Вы победили, вам начислено {mob["XP"]} опыта и денег, теперь вы можете покинуть подземелье, чтобы восстановить здоровье', reply_markup=kb_after_win)
+        await message.answer(
+            f'Вы победили, вам начислено {mob["XP"]} опыта и денег, теперь вы можете покинуть подземелье, чтобы восстановить здоровье',
+            reply_markup=kb_after_win)
         return
     else:
         mob['HP'] = mob_hp
@@ -506,6 +527,7 @@ async def person_info(message: types.Message, state: FSMContext):
     await message.answer(f'Моб нанес вам {mob_attack} урона', reply_markup=kb_in_dungeon)
 
     update_person_by_local_in_fight(person_)
+
 
     async with state.proxy() as data:
         data['mob'] = mob
