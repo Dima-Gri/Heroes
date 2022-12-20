@@ -51,12 +51,3 @@ kb_change_clothes = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=
 btn1 = KeyboardButton("Переодеться")
 btn2 = KeyboardButton("Назад")
 kb_change_clothes.add(btn1, btn2)
-
-def get_kb_buttons(list_of_names):
-    my_kb = ReplyKeyboardMarkup(resize_keyboard=True)
-    for name in set(list_of_names):
-        btn = KeyboardButton(name[0])
-        my_kb.add(btn)
-    my_kb.add(KeyboardButton("Отмена"))
-    return my_kb
-
