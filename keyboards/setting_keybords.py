@@ -2,7 +2,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 kb_start = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
 btn1 = KeyboardButton("Начать новую игру")
-btn2 = KeyboardButton('Статиска игр')
+btn2 = KeyboardButton('Статистика игр')
 kb_start.add(btn1, btn2)
 
 kb_nickname = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
