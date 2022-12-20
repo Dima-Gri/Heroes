@@ -12,7 +12,6 @@ from time import sleep
 start_message = f'На данный момент вы находитесь в локации: <b>Возрождение</b>.\n' \
                 f'На каждый ход у вас <b>60 секунд</b>(если не успеваете - проигрываете). Отсчет заканчивается, когда вы совершаете какое-то действие и сразу же начинается заново\n' \
                 f'Поехали...'
-# обработка отрицательного баланса
 
 class FSMLoop(StatesGroup):
     Nickname = State()
@@ -507,11 +506,6 @@ async def person_info(message: types.Message, state: FSMContext):
     await message.answer(f'Моб нанес вам {mob_attack} урона', reply_markup=kb_in_dungeon)
 
     update_person_by_local_in_fight(person_)
-    print(mob)
-    print(person_)
 
     async with state.proxy() as data:
         data['mob'] = mob
-
-
-# вход в подземелье -> выдается моб, можно узнать информацию по выданному мобу, выпить зелье, атака(выбор типа атаки)
