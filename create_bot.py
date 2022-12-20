@@ -164,8 +164,8 @@ insertion_query3 = mobs.insert().values([
      'Magic_Armour': '20', 'Name': 'Горо'}
 
 ])
-# connection.execute(insertion_query)
-# connection.execute(insertion_query1)
-# connection.execute(insertion_query2)
-# connection.execute(insertion_query3)
+connection.execute(insertion_query)
+connection.execute(insertion_query1)
+connection.execute(insertion_query2)
+connection.execute(insertion_query3)
 
